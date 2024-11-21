@@ -79,6 +79,16 @@ def edit(id):
         return redirect(url_for("home"))
     return render_template("edit.html",movie = movie_selected, form = form)
 
+@app.route("/delete")
+def delete():
+    ## another way of selecting a specific row(movie) --------------
+    movie_id = request.args.get("id")
+    movie_selected = db.get_or_404(Movie, movie_id)
+    ##--------------------------------------------------------------
+    db.session.delete(movie_selected)
+    db.session.commit()
+    return redirect(url_for("home"))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
