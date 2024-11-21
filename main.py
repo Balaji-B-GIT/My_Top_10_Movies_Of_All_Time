@@ -31,6 +31,11 @@ Bootstrap5(app)
 class Base(DeclarativeBase):
     pass
 
+class Update(FlaskForm):
+    rating = StringField('Your Rating out of 10',validators=[DataRequired()])
+    review = StringField('Your Review', validators=[DataRequired()])
+    submit = SubmitField('Done')
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///top-10-movies.db'
 
 db = SQLAlchemy(model_class=Base)
@@ -60,6 +65,19 @@ with app.app_context():
 def home():
     all_movies = db.session.execute(db.select(Movie).order_by(Movie.title)).scalars().all()
     return render_template("index.html",movies = all_movies)
+
+@app.route("/edit/<int:id>",methods=["POST","GET"])
+def edit(id):
+    form = Update()
+    movie_selected = Movie.query.get(id)
+    if form.validate_on_submit():
+        new_rating = form.rating.data
+        new_review = form.review.data
+        movie_selected.rating = new_rating
+        movie_selected.review = new_review
+        db.session.commit()
+        return redirect(url_for("home"))
+    return render_template("edit.html",movie = movie_selected, form = form)
 
 
 if __name__ == '__main__':
