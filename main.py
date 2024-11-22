@@ -80,7 +80,12 @@ with app.app_context():
 
 @app.route("/")
 def home():
-    all_movies = db.session.execute(db.select(Movie).order_by(Movie.title)).scalars().all()
+    all_movies = db.session.execute(db.select(Movie).order_by(Movie.rating)).scalars().all()
+    length = len(all_movies)+1
+    for movie in all_movies:
+        length -= 1
+        movie.ranking = length
+    db.session.commit()
     return render_template("index.html",movies = all_movies)
 
 @app.route("/edit/<int:id>",methods=["POST","GET"])
@@ -88,7 +93,7 @@ def edit(id):
     form = Update()
     movie_selected = Movie.query.get(id)
     if form.validate_on_submit():
-        new_rating = form.rating.data
+        new_rating = float(form.rating.data)
         new_review = form.review.data
         movie_selected.rating = new_rating
         movie_selected.review = new_review
