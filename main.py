@@ -67,7 +67,7 @@ class Movie(db.Model):
     year:Mapped[int] = mapped_column(Integer,nullable=False)
     description:Mapped[str] = mapped_column(String(500),nullable=False)
     rating:Mapped[float] = mapped_column(Float,nullable=True)
-    ranking:Mapped[int] = mapped_column(Integer,nullable=True)
+    ranking:Mapped[str] = mapped_column(String,nullable=True)
     review:Mapped[str] = mapped_column(String,nullable=True)
     img_url:Mapped[str] = mapped_column(String,nullable=False)
 
@@ -84,7 +84,9 @@ def home():
     length = len(all_movies)+1
     for movie in all_movies:
         length -= 1
-        movie.ranking = length
+        movie.ranking = str(length)
+        if length > 10:
+            movie.ranking = "Bonus"
     db.session.commit()
     return render_template("index.html",movies = all_movies)
 
